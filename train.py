@@ -3,13 +3,27 @@ import torch.nn as nn
 import torch.optim as optim
 from model import DeeperCCTVClassifier
 from data import get_dataloaders
+from torchvision import models
+from rexnet_v1 import ReXNetV1
+import argparse
 
-def main():
+def get_model(name, num_classes = 2):
+    if name == 'res':
+        model = models.resnet18(pretrained=True)
+        model.fc = nn.Linear(model.fc.in_features, num_classes)
+    elif name == 'rex':
+        model = ReXNetV1(classes=2)
+    elif name == 'cs':
+        model = DeeperCCTVClassifier(num_classes=num_classes)
+    else:
+        raise ValueError("Unknown model name")
+    return model
+
+def main(model_name):
     device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
-    
-    train_loader, val_loader = get_dataloaders('./data/train', batch_size=32)
-    model = DeeperCCTVClassifier(num_classes=2).to(device)
-    
+    train_loader, val_loader = get_dataloaders('../data/train', batch_size=32)
+    model = get_model(model_name).to(device)
+    print(f"Using model class: {model.__class__.__name__}")
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=3, factor=0.5)
@@ -62,8 +76,11 @@ def main():
         # Save best model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(model.state_dict(), f'deep_cctv_model{round(best_val_acc*100,2)}.pth')
+            torch.save(model.state_dict(), f'deep_cctv_model{round(best_val_acc*100,2)}-{model_name}.pth')
             print("✅ Saved new best model!")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Binary Classification with ResNet, ReXNet or customize model')
+    parser.add_argument('--model', type=str, default='cs', choices=['res', 'rex', 'cs'], help='Model name')
+    args = parser.parse_args()
+    main(args.model)
