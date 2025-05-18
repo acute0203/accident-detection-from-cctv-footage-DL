@@ -12,7 +12,7 @@ def get_model(name, num_classes = 2):
         model = models.resnet18(pretrained=True)
         model.fc = nn.Linear(model.fc.in_features, num_classes)
     elif name == 'rex':
-        model = ReXNetV1(classes=2)
+        model = ReXNetV1(classes=num_classes)
     elif name == 'cs':
         model = DeeperCCTVClassifier(num_classes=num_classes)
     else:
