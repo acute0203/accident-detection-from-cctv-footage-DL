@@ -21,7 +21,7 @@ def get_model(name, num_classes = 2):
 
 def main(model_name):
     device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
-    train_loader, val_loader = get_dataloaders('../data/train', batch_size=32)
+    train_loader, val_loader = get_dataloaders('./data/train', batch_size=32)
     model = get_model(model_name).to(device)
     print(f"Using model class: {model.__class__.__name__}")
     criterion = nn.CrossEntropyLoss()

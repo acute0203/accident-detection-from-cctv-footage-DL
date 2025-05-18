@@ -1,7 +1,7 @@
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split
 
-def get_dataloaders(data_dir='../data/train', batch_size=32):
+def get_dataloaders(data_dir='./data/train', batch_size=32):
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
