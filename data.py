@@ -26,7 +26,7 @@ def get_dataloaders(data_dir='./data/train', batch_size=32):
     train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
     val_dataset.dataset.transform = val_transform
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
     return train_loader, val_loader

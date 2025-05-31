@@ -173,14 +173,18 @@ class ReXNetV1(nn.Module):
 
         features.append(nn.AdaptiveAvgPool2d(1))
         self.features = nn.Sequential(*features)
-        self.output = nn.Sequential(
+        self.pool = nn.AdaptiveAvgPool2d((1, 1))
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
             nn.Dropout(dropout_ratio),
-            nn.Conv2d(pen_channels, classes, 1, bias=True))
+            nn.Linear(pen_channels, classes)
+        )
         
     def extract_features(self, x):
         return self.features[:-1](x)
     
     def forward(self, x):
         x = self.features(x)
-        x = self.output(x).flatten(1)
+        x = self.pool(x)
+        x = self.classifier(x)
         return x
